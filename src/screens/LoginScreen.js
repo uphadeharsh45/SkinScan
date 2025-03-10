@@ -5,7 +5,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
-const LoginScreen = () => {
+const LoginScreen = ({ onLogin }) => {
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,7 +27,8 @@ const LoginScreen = () => {
       if (response.ok) {
         await AsyncStorage.setItem("authToken", data.token);
         Alert.alert("Login Successful", "Welcome back!");
-        navigation.navigate("Home");
+        // navigation.replace("Home");
+        onLogin();
       } else {
         Alert.alert("Login Failed", data.message || "Invalid credentials");
       }
