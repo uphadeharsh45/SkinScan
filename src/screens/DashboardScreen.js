@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator,Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
@@ -38,6 +38,18 @@ const DashboardScreen = ({ onLogout }) => {
         }
 
         setScanData(data);
+         // 🔴 Check for high-risk conditions and show alert
+         if (data.results) {
+          Object.entries(data.results).forEach(([condition, probability]) => {
+            if (probability > 0.5) {
+              Alert.alert(
+                "⚠️ Health Alert",
+                `High risk detected for ${condition} (${(probability * 100).toFixed(2)}%)`,
+                [{ text: "OK" }]
+              );
+            }
+          });
+        }
       } catch (err) {
         setError(err.message);
       } finally {

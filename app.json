@@ -19,10 +19,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.uphadeharsh_45.SkinScan"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "795ddf9e-6cfc-4d70-9cd7-9aab6f450d54"
+      }
+    },
+    "owner": "uphadeharsh_45"
   }
 }
