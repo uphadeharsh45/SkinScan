@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, FlatList } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import skinCareTips from "../data/tips"; // Import the tips data
+import { Ionicons } from "@expo/vector-icons";
+import skinCareTips from "../data/tips";
+
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 
 const ThirdFeatureScreen = () => {
   const [latestScan, setLatestScan] = useState(null);
@@ -17,7 +21,7 @@ const ThirdFeatureScreen = () => {
           return;
         }
 
-        const response = await fetch("http://192.168.180.182:5000/api/recent-scan", {
+        const response = await fetch(`${apiUrl}/api/recent-scan`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -44,7 +48,7 @@ const ThirdFeatureScreen = () => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#007BFF" />
       </View>
     );
   }
@@ -55,55 +59,83 @@ const ThirdFeatureScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Personalized Skincare Tips</Text>
-      <Text style={styles.skinType}>Your Skin Type: {skinType || "Unknown"}</Text>
+      <View style={styles.card}>
+        <View style={styles.row}>
+          <Ionicons name="person" size={18} color="#007BFF" />
+          <Text style={styles.skinType}>Your Skin Type: {skinType || "Unknown"}</Text>
+        </View>
 
-      {tips ? (
-        <FlatList
-          ListHeaderComponent={
-            <>
-              <Text style={styles.subheading}>💡 Skin Characteristics:</Text>
-              <Text style={styles.description}>{tips.description}</Text>
+        {tips ? (
+          <>
+            <View style={styles.row}>
+              <Ionicons name="bulb" size={18} color="#FFA500" />
+              <Text style={styles.subheading}>Skin Characteristics:</Text>
+            </View>
+            <Text style={styles.description}>{tips.description}</Text>
 
-              <Text style={styles.subheading}>🧴 Recommended Skincare Routine:</Text>
-            </>
-          }
-          data={tips.skincareRoutine}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => <Text style={styles.listItem}>• {item}</Text>}
-          ListFooterComponent={
-            <>
-              <Text style={styles.subheading}>✅ Best Ingredients for You:</Text>
-              <Text style={styles.listItem}>{tips.bestIngredients.join(", ")}</Text>
+            <View style={styles.row}>
+              <Ionicons name="flask" size={18} color="#32CD32" />
+              <Text style={styles.subheading}>Recommended Skincare Routine:</Text>
+            </View>
+            <FlatList
+              data={tips.skincareRoutine}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => <Text style={styles.listItem}>• {item}</Text>}
+            />
 
-              <Text style={styles.subheading}>🚫 Avoid These Ingredients:</Text>
-              <Text style={styles.listItem}>{tips.avoidIngredients.join(", ")}</Text>
+            <View style={styles.row}>
+              <Ionicons name="checkmark-circle" size={18} color="#28A745" />
+              <Text style={styles.subheading}>Best Ingredients for You:</Text>
+            </View>
+            <Text style={styles.listItem}>{tips.bestIngredients.join(", ")}</Text>
 
-              <Text style={styles.subheading}>🥗 Diet & Lifestyle Tips:</Text>
+            <View style={styles.row}>
+              <Ionicons name="close-circle" size={18} color="#DC3545" />
+              <Text style={styles.subheading}>Avoid These Ingredients:</Text>
+            </View>
+            <Text style={styles.listItem}>{tips.avoidIngredients.join(", ")}</Text>
 
-              <FlatList
-                data={tips.dietTips} // Adding this missing section
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => <Text style={styles.listItem}>• {item}</Text>}
-              />
-            </>
-          }
-          nestedScrollEnabled
-          contentContainerStyle={{ paddingBottom: 20 }}
-        />
-      ) : (
-        <Text style={styles.errorText}>No specific tips available.</Text>
-      )}
+            <View style={styles.row}>
+              <Ionicons name="nutrition" size={18} color="#FFD700" />
+              <Text style={styles.subheading}>Diet & Lifestyle Tips:</Text>
+            </View>
+            <FlatList
+              data={tips.dietTips}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => <Text style={styles.listItem}>• {item}</Text>}
+            />
+          </>
+        ) : (
+          <Text style={styles.errorText}>No specific tips available.</Text>
+        )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#f5f5f5" },
-  heading: { fontSize: 22, fontWeight: "bold", textAlign: "center", marginBottom: 10 },
-  subheading: { fontSize: 18, fontWeight: "bold", marginTop: 10 },
-  skinType: { fontSize: 16, fontWeight: "bold", textAlign: "center", marginBottom: 10 },
-  description: { fontSize: 14, marginBottom: 10 },
-  listItem: { fontSize: 14, marginVertical: 5, paddingLeft: 10 },
+  container: { flex: 1, padding: 20, backgroundColor: "#F5F5F5", alignItems: "center" },
+  heading: { fontSize: 24, fontWeight: "bold", marginBottom: 15, color: "#333" },
+  card: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 5,
+  },
+  skinType: { fontSize: 16, fontWeight: "bold", color: "#007BFF" },
+  subheading: { fontSize: 16, fontWeight: "bold", color: "#555" },
+  description: { fontSize: 14, marginBottom: 10, color: "#333" },
+  listItem: { fontSize: 14, marginVertical: 5, paddingLeft: 10, color: "#666" },
   errorText: { fontSize: 14, color: "red", textAlign: "center", marginTop: 10 },
 });
 

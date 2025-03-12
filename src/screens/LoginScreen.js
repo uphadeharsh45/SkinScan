@@ -1,14 +1,25 @@
 import React, { useState } from "react";
-import { 
-  View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  StyleSheet
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialIcons, Feather } from "@expo/vector-icons";
+
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 
 const LoginScreen = ({ onLogin }) => {
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -17,7 +28,7 @@ const LoginScreen = ({ onLogin }) => {
     }
 
     try {
-      const response = await fetch("http://192.168.180.182:5000/api/user/login", {
+      const response = await fetch(`${apiUrl}/api/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -27,7 +38,6 @@ const LoginScreen = ({ onLogin }) => {
       if (response.ok) {
         await AsyncStorage.setItem("authToken", data.token);
         Alert.alert("Login Successful", "Welcome back!");
-        // navigation.replace("Home");
         onLogin();
       } else {
         Alert.alert("Login Failed", data.message || "Invalid credentials");
@@ -39,60 +49,125 @@ const LoginScreen = ({ onLogin }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Login</Text>
-      
-      <TextInput 
-        style={styles.input} 
-        placeholder="Email" 
-        value={email} 
-        onChangeText={setEmail} 
-        keyboardType="email-address"
-      />
-      <TextInput 
-        style={styles.input} 
-        placeholder="Password" 
-        value={password} 
-        onChangeText={setPassword} 
-        secureTextEntry
-      />
-      
-      <Button title="Login" onPress={handleLogin} color="#007BFF" />
-      
-      <TouchableOpacity onPress={() => navigation.navigate("Register")}> 
-        <Text style={styles.registerText}>Don't have an account? Register</Text>
-      </TouchableOpacity>
-    </View>
+    <LinearGradient colors={["#1E3C72", "#2A5298"]} style={styles.background}>
+      <View style={styles.container}>
+        <Text style={styles.heading}>Welcome Back</Text>
+
+        <View style={styles.formContainer}>
+          {/* Email Field */}
+          <View style={styles.inputContainer}>
+            <MaterialIcons name="email" size={22} color="#555" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              placeholderTextColor="#777"
+            />
+          </View>
+
+          {/* Password Field */}
+          <View style={styles.inputContainer}>
+            <MaterialIcons name="lock" size={22} color="#555" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              placeholderTextColor="#777"
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Feather name={showPassword ? "eye" : "eye-off"} size={22} color="#555" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Login Button */}
+          <TouchableOpacity onPress={handleLogin} style={styles.button}>
+            <LinearGradient colors={["#007BFF", "#0056b3"]} style={styles.buttonGradient}>
+              <Text style={styles.buttonText}>Login</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          {/* Register Link */}
+          <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+            <Text style={styles.registerText}>Don't have an account? Register</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+  },
+  container: {
+    width: "85%",
+    alignItems: "center",
   },
   heading: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
+    color: "#fff",
     marginBottom: 20,
   },
-  input: {
+  formContainer: {
     width: "100%",
-    height: 40,
-    borderColor: "#ccc",
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    padding: 25,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    height: 50,
+    marginBottom: 12,
+    borderColor: "#ddd",
     borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
+  },
+  icon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333",
+  },
+  button: {
+    marginTop: 15,
+    borderRadius: 8,
+  },
+  buttonGradient: {
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
   },
   registerText: {
-    marginTop: 10,
-    color: "#007BFF",
+    marginTop: 15,
     fontSize: 16,
+    color: "#007BFF",
+    textAlign: "center",
     textDecorationLine: "underline",
-  }
+  },
 });
 
 export default LoginScreen;
